@@ -1,1 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoPost Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#f0f2f8; --surface:#ffffff; --surface2:#f7f8fc;
+    --border:#e2e6f0; --accent:#5b4ef5; --accent2:#e0468a;
+    --green:#16a34a; --gbg:#dcfce7; --yellow:#b45309;
+    --red:#dc2626; --rbg:#fee2e2; --blue:#1d6fc4; --bbg:#dbeafe;
+    --text:#1a1a2e; --muted:#6b7280; --yt:#cc2200; --ytbg:#ffe4e1;
+    --card-shadow:0 1px 4px rgba(0,0,0,.07);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  .wrapper{max-width:1100px;margin:0 auto;padding:28px 20px;}
 
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+  .logo{display:flex;align-items:center;gap:11px;}
+  .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+  .logo h1{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;color:var(--text);}
+  .logo span{display:block;font-size:11px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;margin-top:1px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .status-pill{display:flex;align-items:center;gap:7px;padding:7px 13px;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:12px;color:var(--muted);box-shadow:var(--card-shadow);}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+  .dot.on{background:var(--green);box-shadow:0 0 6px rgba(22,163,74,.5);animation:pulse 1.5s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+  .platform-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px;margin-bottom:15px;}
+  .pcard{border-radius:14px;padding:20px;border:1px solid;}
+  .pcard.fb{background:#f0f4ff;border-color:#c7d7fb;}
+  .pcard.ig{background:#fff0f7;border-color:#f7c4df;}
+  .pcard.yt{background:#fff4f2;border-color:#fbc8be;}
+  .pcard-top{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
+  .picon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;}
+  .picon.fb{background:#dce8ff;} .picon.ig{background:#ffe0f0;} .picon.yt{background:#ffe0db;}
+  .pname{font-size:14px;font-weight:600;}
+  .pname.fb{color:#1a4dc2;} .pname.ig{color:#c4247a;} .pname.yt{color:#bb2200;}
+  .pcounts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+  .cbox{background:rgba(255,255,255,.8);border-radius:9px;padding:11px 7px;text-align:center;border:1px solid rgba(0,0,0,.06);}
+  .cnum{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;line-height:1;margin-bottom:3px;}
+  .cnum.fb{color:#1a4dc2;} .cnum.ig{color:#c4247a;} .cnum.yt{color:#bb2200;}
+  .cnum.ok{color:var(--green);} .cnum.fail{color:var(--red);}
+  .clabel{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+
+  .small-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px;}
+  .scard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px;box-shadow:var(--card-shadow);}
+  .slabel{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:5px;}
+  .sval{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--text);}
+  .ssub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+  .action-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 16px;display:flex;align-items:center;gap:10px;margin-bottom:15px;font-size:13px;box-shadow:var(--card-shadow);}
+  .alabel{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:2px;}
+
+  .pbar-wrap{display:flex;align-items:center;justify-content:space-between;padding:8px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:15px;font-size:11px;color:var(--muted);box-shadow:var(--card-shadow);}
+  .pbar{width:80px;height:3px;background:var(--border);border-radius:4px;overflow:hidden;}
+  .pfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;width:0%;transition:width 1s linear;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--card-shadow);margin-bottom:13px;}
+  .card-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+  .ctitle{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);}
+  .card-body{padding:11px 14px;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+
+  /* ── Inbox ── */
+  .inbox-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;}
+  .inbox-item{
+    display:grid;
+    grid-template-columns:auto 1fr auto auto;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  .inbox-icon{font-size:22px;}
+  .inbox-info{min-width:0;}
+  .inbox-name{
+    font-size:12px;font-family:'Space Mono',monospace;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    margin-bottom:6px;color:var(--text);
+  }
+  .inbox-dt input{
+    padding:6px 9px;border:1px solid var(--border);border-radius:7px;
+    font-size:12px;font-family:'DM Sans',sans-serif;
+    background:var(--surface);color:var(--text);
+    width:190px;
+  }
+  .inbox-dt .dt-hint{font-size:10px;color:var(--muted);margin-top:4px;}
+  .inbox-actions{display:flex;gap:6px;}
+
+  .ibtn{
+    width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;
+    font-size:16px;display:flex;align-items:center;justify-content:center;
+    transition:all .18s;font-weight:700;
+  }
+  .ibtn.approve{background:var(--gbg);color:var(--green);}
+  .ibtn.approve:hover{background:var(--green);color:#fff;transform:scale(1.07);}
+  .ibtn.reject{background:var(--rbg);color:var(--red);}
+  .ibtn.reject:hover{background:var(--red);color:#fff;transform:scale(1.07);}
+
+  /* ── Scheduled ── */
+  .sched-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;}
+  .sched-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid;}
+  .sched-item.pending{background:#fffbeb;border-color:#fde68a;}
+  .sched-item.posted{background:var(--gbg);border-color:#86efac;}
+  .sched-item.failed{background:var(--rbg);border-color:#fca5a5;}
+  .sched-name{flex:1;font-size:12px;font-family:'Space Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sched-time{font-size:11px;color:var(--muted);white-space:nowrap;}
+  .sched-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+  .sched-status.pending{background:#fde68a;color:#92400e;}
+  .sched-status.posted{background:var(--gbg);color:var(--green);}
+  .sched-status.failed{background:var(--rbg);color:var(--red);}
+  .cbtn{padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-size:11px;background:var(--rbg);color:var(--red);font-family:'DM Sans',sans-serif;}
+  .cbtn:hover{background:var(--red);color:#fff;}
+
+  .log-list{display:flex;flex-direction:column;gap:5px;max-height:250px;overflow-y:auto;}
+  .log-list::-webkit-scrollbar{width:3px;}
+  .log-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  .log-entry{display:flex;flex-direction:column;gap:2px;padding:7px 10px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);font-size:12px;}
+  .lmsg{line-height:1.5;color:var(--text);}
+  .lmsg.error{color:var(--red);} .lmsg.warning{color:var(--yellow);}
+
+  .twrap{max-height:250px;overflow-y:auto;}
+  table{width:100%;border-collapse:collapse;}
+  th{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);text-align:left;padding:8px 11px;border-bottom:1px solid var(--border);background:var(--surface2);}
+  td{padding:8px 11px;font-size:11px;border-bottom:1px solid rgba(0,0,0,.04);vertical-align:middle;color:var(--text);}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--surface2);}
+  .fname{font-family:'Space Mono',monospace;font-size:10px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ts{color:var(--muted);font-size:10px;}
+  .bgs{display:flex;gap:4px;flex-wrap:wrap;}
+  .bg{padding:2px 7px;border-radius:100px;font-size:10px;font-weight:700;}
+  .bg.fb{background:var(--bbg);color:var(--blue);}
+  .bg.ig{background:#ffe0f0;color:#c4247a;}
+  .bg.yt{background:var(--ytbg);color:var(--yt);}
+  .bg.ok{background:var(--gbg);color:var(--green);}
+  .bg.fail{background:var(--rbg);color:var(--red);}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 15px;border-radius:9px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all .2s;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+  .btn:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,78,245,.25);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .empty{text-align:center;padding:22px;color:var(--muted);font-size:13px;}
+  .ei{font-size:22px;margin-bottom:5px;}
+
+  .inbox-hint{font-size:11px;color:var(--muted);padding:6px 4px 2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+
+  .inbox-list::-webkit-scrollbar,.sched-list::-webkit-scrollbar{width:3px;}
+  .inbox-list::-webkit-scrollbar-thumb,.sched-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+  .yt-retry-btn {
+    padding: 3px 9px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+    background: var(--ytbg); color: var(--yt); transition: all .18s;
+  }
+  .yt-retry-btn:hover { background: var(--yt); color: #fff; }
+
+  .logout-link{font-size:11px;color:var(--muted);text-decoration:none;margin-right:4px;}
+  .logout-link:hover{color:var(--red);text-decoration:underline;}
+
+  .inbox-icon, .inbox-name{cursor:pointer;}
+  .inbox-icon:hover{opacity:.7;}
+  .inbox-name:hover{color:var(--accent);text-decoration:underline;}
+
+  /* ── Preview modal ── */
+  .preview-overlay{
+    display:none;position:fixed;inset:0;background:rgba(15,15,25,.82);
+    align-items:center;justify-content:center;z-index:999;padding:24px;
+  }
+  .preview-overlay.open{display:flex;}
+  .preview-box{
+    max-width:min(92vw,720px);max-height:88vh;
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+  }
+  .preview-box img, .preview-box video{
+    max-width:100%;max-height:76vh;border-radius:12px;
+    box-shadow:0 12px 40px rgba(0,0,0,.4);background:#000;
+  }
+  .preview-name{color:#f4f4f8;font-size:12px;font-family:'Space Mono',monospace;text-align:center;word-break:break-all;}
+  .preview-close{
+    position:absolute;top:18px;right:22px;width:38px;height:38px;border-radius:50%;
+    background:rgba(255,255,255,.12);border:none;color:#fff;font-size:20px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:background .15s;
+  }
+  .preview-close:hover{background:rgba(255,255,255,.25);}
+  .preview-loading{color:#ccc;font-size:13px;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">📡</div>
+      <div><h1>AutoPost</h1><span>Social Media Automation</span></div>
+    </div>
+    <div class="header-right">
+      <a href="/logout" class="logout-link">Logout</a>
+      <button class="btn" id="runBtn" onclick="runNow()">▶ Check Now</button>
+      <div class="status-pill">
+        <div class="dot" id="dot"></div>
+        <span id="statusText">Idle</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="pbar-wrap">
+    <span id="refreshLabel">Refreshing in 5s...</span>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+  </div>
+
+  <div class="platform-grid">
+    <div class="pcard fb">
+      <div class="pcard-top"><div class="picon fb">📘</div><div class="pname fb">Facebook</div></div>
+      <div class="pcounts">
+        <div class="cbox"><div class="cnum fb" id="fbTotal">0</div><div class="clabel">Total</div></div>
+        <div class="cbox"><div class="cnum ok" id="fbOk">0</div><div class="clabel">Success</div></div>
+        <div class="cbox"><div class="cnum fail" id="fbFail">0</div><div class="clabel">Failed</div></div>
+      </div>
+    </div>
+    <div class="pcard ig">
+      <div class="pcard-top"><div class="picon ig">📸</div><div class="pname ig">Instagram</div></div>
+      <div class="pcounts">
+        <div class="cbox"><div class="cnum ig" id="igTotal">0</div><div class="clabel">Total</div></div>
+        <div class="cbox"><div class="cnum ok" id="igOk">0</div><div class="clabel">Success</div></div>
+        <div class="cbox"><div class="cnum fail" id="igFail">0</div><div class="clabel">Failed</div></div>
+      </div>
+    </div>
+    <div class="pcard yt">
+      <div class="pcard-top"><div class="picon yt">▶️</div><div class="pname yt">YouTube</div></div>
+      <div class="pcounts">
+        <div class="cbox"><div class="cnum yt" id="ytTotal">0</div><div class="clabel">Total</div></div>
+        <div class="cbox"><div class="cnum ok" id="ytOk">0</div><div class="clabel">Success</div></div>
+        <div class="cbox"><div class="cnum fail" id="ytFail">0</div><div class="clabel">Failed</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="small-grid">
+    <div class="scard">
+      <div class="slabel">Last Check (IST)</div>
+      <div class="sval" style="font-size:12px;padding-top:3px" id="lastCheck">Never</div>
+      <div class="ssub">Every 15 min via cron</div>
+    </div>
+    <div class="scard">
+      <div class="slabel">YouTube Auth</div>
+      <div class="sval" id="ytAuth" style="font-size:13px;">Loading...</div>
+      <div class="ssub"><a href="/youtube/auth" style="color:var(--accent);font-size:11px;">Re-authenticate →</a></div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <span id="aicon" style="font-size:17px">💤</span>
+    <div>
+      <div class="alabel">Current Status</div>
+      <div id="currentAction">Idle — waiting for next check</div>
+    </div>
+  </div>
+
+  <!-- ── YouTube re-auth banner (hidden by default) ── -->
+  <div id="reauthBanner" style="display:none;background:#fff1f2;border:1.5px solid #fca5a5;border-radius:11px;padding:14px 18px;margin-bottom:15px;display:none;align-items:center;gap:13px;">
+    <span style="font-size:22px">⚠️</span>
+    <div style="flex:1">
+      <div style="font-weight:700;font-size:13px;color:#dc2626;">YouTube Re-Authentication Required</div>
+      <div style="font-size:12px;color:#6b7280;margin-top:2px;">Your YouTube refresh token has expired or been revoked. Videos will not upload to YouTube until you re-authenticate.</div>
+    </div>
+    <a href="/youtube/auth" style="padding:8px 16px;background:#dc2626;color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;">🔑 Re-authenticate</a>
+  </div>
+
+  <!-- ── Inbox ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="ctitle">📥 New Files — Review &amp; Schedule</div>
+      <div style="font-size:11px;color:var(--muted)" id="inboxCount">0 files</div>
+    </div>
+    <div class="card-body">
+      <div class="inbox-hint">
+        📅 Pick a date/time then tap <b style="color:var(--green)">✓</b> to schedule &nbsp;|&nbsp;
+        ⚡ Leave the date/time blank and tap <b style="color:var(--green)">✓</b> to post <b>right now</b> &nbsp;|&nbsp;
+        ❌ Tap <b style="color:var(--red)">✗</b> to reject
+      </div>
+      <br>
+      <div class="inbox-list" id="inboxList">
+        <div class="empty"><div class="ei">📭</div>No new files pending review</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Scheduled ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="ctitle">📅 Scheduled Posts</div>
+      <div style="font-size:11px;color:var(--muted)" id="schedCount">0 scheduled</div>
+    </div>
+    <div class="card-body">
+      <div class="sched-list" id="schedList">
+        <div class="empty"><div class="ei">🗓️</div>No scheduled posts</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="ctitle">📋 Live Logs</div>
+        <div style="font-size:11px;color:var(--muted)" id="logCount">0 entries</div>
+      </div>
+      <div class="card-body">
+        <div class="log-list" id="logList">
+          <div class="empty"><div class="ei">📭</div>No activity yet</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="ctitle">📁 Posted Files</div>
+        <div style="font-size:11px;color:var(--muted)" id="histCount">0 files</div>
+      </div>
+      <div class="card-body" style="padding:0">
+        <div class="twrap">
+          <table>
+            <thead><tr><th>File</th><th>Time (IST)</th><th>✅ Posted</th><th>❌ Failed</th><th>Status</th><th>Retry</th></tr></thead>
+            <tbody id="tbody">
+              <tr><td colspan="5"><div class="empty"><div class="ei">🗂️</div>No posts yet</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Preview Modal ── -->
+<div class="preview-overlay" id="previewOverlay" onclick="if(event.target===this) closePreview();">
+  <button class="preview-close" onclick="closePreview()">✕</button>
+  <div class="preview-box">
+    <div class="preview-loading" id="previewLoading">Loading preview...</div>
+    <img id="previewImg" style="display:none;">
+    <video id="previewVideo" controls autoplay style="display:none;"></video>
+    <div class="preview-name" id="previewName"></div>
+  </div>
+</div>
+
+<script>
+  var lastLogLen = 0, tick = 0, TICK_MAX = 5, inboxFocused = false;
+  var pendingAction = null; // {type: 'approve'|'reject', fileId, filename, scheduledTime}
+
+  function toIST(raw) {
+    if (!raw) return null;
+    var s = String(raw).trim();
+    var d;
+    if (/^\d{10}$/.test(s)) { d = new Date(parseInt(s) * 1000); }
+    else if (/^\d{13}$/.test(s)) { d = new Date(parseInt(s)); }
+    else {
+      s = s.replace(' ', 'T');
+      if (!/Z|[+-]\d{2}:?\d{2}$/.test(s)) s = s + 'Z';
+      d = new Date(s);
+    }
+    if (!d || isNaN(d.getTime())) return String(raw);
+    return d.toLocaleString('en-IN', {
+      timeZone:'Asia/Kolkata', day:'2-digit', month:'short',
+      year:'numeric', hour:'2-digit', minute:'2-digit',
+      second:'2-digit', hour12:true
+    }) + ' IST';
+  }
+
+  function fetchStatus() {
+    fetch('/api/status')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var dot = document.getElementById('dot');
+        if (data.running) {
+          dot.classList.add('on');
+          document.getElementById('statusText').textContent = 'Running';
+          document.getElementById('aicon').textContent = '⚙️';
+        } else {
+          dot.classList.remove('on');
+          document.getElementById('statusText').textContent = 'Idle';
+          document.getElementById('aicon').textContent = '💤';
+        }
+        document.getElementById('lastCheck').textContent = toIST(data.last_check) || 'Never';
+        document.getElementById('currentAction').textContent = data.current_action || 'Idle';
+        document.getElementById('runBtn').disabled = !!data.running;
+
+        var ytAuthEl = document.getElementById('ytAuth');
+        var banner   = document.getElementById('reauthBanner');
+        if (data.youtube_reauth_needed) {
+          ytAuthEl.textContent = '❌ Token expired — re-auth needed';
+          ytAuthEl.style.color = 'var(--red)';
+          banner.style.display = 'flex';
+        } else if (data.youtube_auth) {
+          ytAuthEl.textContent = '✅ Connected';
+          ytAuthEl.style.color = 'var(--green)';
+          banner.style.display = 'none';
+        } else {
+          ytAuthEl.textContent = '❌ Not connected';
+          ytAuthEl.style.color = 'var(--red)';
+          banner.style.display = 'none';
+        }
+
+        var logs = data.logs || [];
+        document.getElementById('logCount').textContent = logs.length + ' entries';
+        if (logs.length !== lastLogLen) {
+          lastLogLen = logs.length;
+          var list = document.getElementById('logList');
+          if (!logs.length) {
+            list.innerHTML = '<div class="empty"><div class="ei">📭</div>No activity yet</div>';
+          } else {
+            list.innerHTML = logs.map(function(l) {
+              return '<div class="log-entry"><span class="lmsg ' + (l.level || '') + '">' + l.message + '</span></div>';
+            }).join('');
+          }
+        }
+      })
+      .catch(function(e) { console.error('Status fetch error:', e); });
+  }
+
+  function fetchPostLog() {
+    fetch('/api/post_log')
+      .then(function(r) { return r.json(); })
+      .then(function(log) {
+        document.getElementById('histCount').textContent = log.length + ' files';
+        var fbOk=0,fbF=0,igOk=0,igF=0,ytOk=0,ytF=0;
+        log.forEach(function(e) {
+          var succeeded = e.platforms || [];
+          var failed    = e.failed_platforms || [];
+          if (succeeded.indexOf('Facebook')       > -1) fbOk++;
+          if (succeeded.indexOf('Facebook Story')  > -1) fbOk++;
+          if (succeeded.indexOf('Instagram')      > -1) igOk++;
+          if (succeeded.indexOf('Instagram Story') > -1) igOk++;
+          if (succeeded.indexOf('YouTube')        > -1) ytOk++;
+          if (failed.indexOf('Facebook')       > -1) fbF++;
+          if (failed.indexOf('Facebook Story')  > -1) fbF++;
+          if (failed.indexOf('Instagram')      > -1) igF++;
+          if (failed.indexOf('Instagram Story') > -1) igF++;
+          if (failed.indexOf('YouTube')        > -1) ytF++;
+        });
+        document.getElementById('fbTotal').textContent  = fbOk + fbF;
+        document.getElementById('fbOk').textContent     = fbOk;
+        document.getElementById('fbFail').textContent   = fbF;
+        document.getElementById('igTotal').textContent  = igOk + igF;
+        document.getElementById('igOk').textContent     = igOk;
+        document.getElementById('igFail').textContent   = igF;
+        document.getElementById('ytTotal').textContent  = ytOk + ytF;
+        document.getElementById('ytOk').textContent     = ytOk;
+        document.getElementById('ytFail').textContent   = ytF;
+
+        var tbody = document.getElementById('tbody');
+        if (!log.length) {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="ei">🗂️</div>No posts yet</div></td></tr>';
+        } else {
+          tbody.innerHTML = log.map(function(e) {
+            var succeeded = e.platforms || [];
+            var failed    = e.failed_platforms || [];
+            function badge(p, cls) {
+              if (p==='Facebook')          return '<span class="bg '+cls+'">FB</span>';
+              if (p==='Facebook Story')    return '<span class="bg '+cls+'">FB Story</span>';
+              if (p==='Instagram')         return '<span class="bg '+cls+'">IG</span>';
+              if (p==='Instagram Story')   return '<span class="bg '+cls+'">IG Story</span>';
+              if (p==='YouTube')           return '<span class="bg '+cls+'">YT</span>';
+              return '';
+            }
+            var okBadges   = succeeded.map(function(p) { return badge(p, p.indexOf('Facebook')>-1 ? 'fb' : (p.indexOf('Instagram')>-1 ? 'ig' : 'yt')); }).join('');
+            var failBadges = failed.map(function(p)    { return badge(p, 'fail'); }).join('');
+            var ytFailed  = failed.indexOf('YouTube') > -1;
+            var ytPosted  = succeeded.indexOf('YouTube') > -1;
+            var retryBtn  = '';
+            if (ytFailed && !ytPosted) {
+              var safeFile = e.filename.replace(/'/g, "\\'");
+              retryBtn = '<button class="yt-retry-btn" onclick="retryYoutube(\''+safeFile+'\')">↺ YT</button>';
+            } else if (ytPosted) {
+              retryBtn = '<span style="color:var(--green);font-size:11px">✓ YT</span>';
+            } else {
+              retryBtn = '<span style="color:var(--muted);font-size:10px">—</span>';
+            }
+            return '<tr>' +
+              '<td><div class="fname" title="' + e.filename + '">' + e.filename + '</div></td>' +
+              '<td><span class="ts">' + (toIST(e.timestamp) || e.timestamp || '') + '</span></td>' +
+              '<td><div class="bgs">' + (okBadges   || '<span style="color:var(--muted);font-size:10px">—</span>') + '</div></td>' +
+              '<td><div class="bgs">' + (failBadges || '<span style="color:var(--muted);font-size:10px">—</span>') + '</div></td>' +
+              '<td><span class="bg ' + (e.success ? 'ok' : 'fail') + '">' + (e.success ? '✓ OK' : '✗ Fail') + '</span></td>' +
+              '<td>' + retryBtn + '</td>' +
+              '</tr>';
+          }).join('');
+        }
+      })
+      .catch(function(e) { console.error('Post log fetch error:', e); });
+  }
+
+  function fetchInbox() {
+    fetch('/api/inbox')
+      .then(function(r) { return r.json(); })
+      .then(function(files) {
+        var list = document.getElementById('inboxList');
+        document.getElementById('inboxCount').textContent = (files.length || 0) + ' files';
+        if (!files || !files.length) {
+          list.innerHTML = '<div class="empty"><div class="ei">📭</div>No new files pending review</div>';
+          return;
+        }
+        list.innerHTML = files.map(function(f) {
+          var isVideo = f.mimeType && f.mimeType.startsWith('video');
+          var icon = isVideo ? '🎥' : '🖼️';
+          var safeId   = f.id;
+          var safeName = f.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+          var previewCall = 'openPreview(\'' + safeId + '\',\'' + safeName + '\',' + (isVideo ? 'true' : 'false') + ')';
+          return '<div class="inbox-item" id="item_' + safeId + '">' +
+            '<span class="inbox-icon" onclick="' + previewCall + '" title="Click to preview">' + icon + '</span>' +
+            '<div class="inbox-info">' +
+              '<div class="inbox-name" onclick="' + previewCall + '" title="Click to preview">' + f.name + '</div>' +
+              '<div class="inbox-dt">' +
+                '<input type="datetime-local" id="dt_' + safeId + '" onfocus="inboxFocused=true" onblur="inboxFocused=false">' +
+                '<div class="dt-hint">Leave blank to post immediately</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="inbox-actions">' +
+              '<button class="ibtn approve" title="Schedule (or post now if left blank)" onclick="approveFile(\'' + safeId + '\',\'' + safeName + '\')">✓</button>' +
+              '<button class="ibtn reject"  title="Reject &amp; move to Inbox folder"   onclick="rejectFile(\'' + safeId + '\',\'' + safeName + '\')">✗</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      })
+      .catch(function(e) { console.error('Inbox fetch error:', e); });
+  }
+
+  function fetchScheduled() {
+    fetch('/api/scheduled')
+      .then(function(r) { return r.json(); })
+      .then(function(items) {
+        var list = document.getElementById('schedList');
+        var pending = items.filter(function(s) { return s.status !== 'posted'; });
+        document.getElementById('schedCount').textContent = pending.length + ' scheduled';
+        if (!items.length) {
+          list.innerHTML = '<div class="empty"><div class="ei">🗓️</div>No scheduled posts</div>';
+          return;
+        }
+        list.innerHTML = items.map(function(s) {
+          var cancelBtn = s.status === 'pending'
+            ? '<button class="cbtn" onclick="cancelScheduled(\'' + s.file_id + '\')">Cancel</button>'
+            : '';
+          return '<div class="sched-item ' + s.status + '">' +
+            '<span class="sched-name" title="' + s.filename + '">' + s.filename + '</span>' +
+            '<span class="sched-time">⏰ ' + s.scheduled_time + ' IST</span>' +
+            '<span class="sched-status ' + s.status + '">' + s.status.toUpperCase() + '</span>' +
+            cancelBtn +
+          '</div>';
+        }).join('');
+      })
+      .catch(function(e) { console.error('Scheduled fetch error:', e); });
+  }
+
+  /* ── Approve: no login modal needed anymore — Google login already
+     verified who's here at the site level. Submits straight away.
+     If a date/time was picked → schedules + moves to Posted folder.
+     If left blank → posts immediately (Facebook, Instagram, Stories, YouTube). ── */
+  function approveFile(fileId, filename) {
+    var dtInput = document.getElementById('dt_' + fileId);
+    var scheduledTime = '';
+    if (dtInput && dtInput.value) {
+      scheduledTime = dtInput.value.replace('T', ' ');  // "YYYY-MM-DD HH:MM"
+    }
+    pendingAction = {type: 'approve', fileId: fileId, filename: filename, scheduledTime: scheduledTime};
+    submitAction();
+  }
+
+  /* ── Reject: confirms, then submits straight away ── */
+  function rejectFile(fileId, filename) {
+    if (!confirm('Reject "' + filename + '" and move it to the Inbox folder?')) return;
+    pendingAction = {type: 'reject', fileId: fileId, filename: filename};
+    submitAction();
+  }
+
+  function submitAction() {
+    if (!pendingAction) return;
+
+    var url, payload, btnSelector, busySymbol;
+    if (pendingAction.type === 'approve') {
+      url = '/api/approve';
+      payload = {
+        file_id: pendingAction.fileId,
+        filename: pendingAction.filename,
+        scheduled_time: pendingAction.scheduledTime // may be '' → immediate post
+      };
+      btnSelector = '#item_' + pendingAction.fileId + ' .approve';
+      busySymbol = '…';
+    } else {
+      url = '/api/reject';
+      payload = {
+        file_id: pendingAction.fileId,
+        filename: pendingAction.filename
+      };
+      btnSelector = '#item_' + pendingAction.fileId + ' .reject';
+      busySymbol = '…';
+    }
+
+    var btn = document.querySelector(btnSelector);
+    if (btn) { btn.disabled = true; btn.textContent = busySymbol; }
+
+    fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json().then(function(data) { return {status: r.status, data: data}; }); })
+    .then(function(res) {
+      if (res.data.error) {
+        alert('❌ ' + res.data.error);
+        if (btn) { btn.disabled = false; btn.textContent = pendingAction.type === 'approve' ? '✓' : '✗'; }
+        pendingAction = null;
+        return;
+      }
+      var wasImmediate = !!res.data.immediate;
+      var fileId = pendingAction.fileId;
+      pendingAction = null;
+
+      var row = document.getElementById('item_' + fileId);
+      if (row) row.remove();
+      var remaining = document.querySelectorAll('#inboxList .inbox-item').length;
+      document.getElementById('inboxCount').textContent = remaining + ' files';
+      if (remaining === 0) {
+        document.getElementById('inboxList').innerHTML =
+          '<div class="empty"><div class="ei">📭</div>No new files pending review</div>';
+      }
+      if (wasImmediate) {
+        setTimeout(function() { fetchStatus(); fetchPostLog(); }, 1500);
+      }
+      fetchScheduled();
+    })
+    .catch(function(e) {
+      alert('❌ Network error — nothing was changed. Please try again.');
+      if (btn) { btn.disabled = false; btn.textContent = pendingAction && pendingAction.type === 'approve' ? '✓' : '✗'; }
+      pendingAction = null;
+    });
+  }
+
+  /* ── Preview modal ── */
+  function openPreview(fileId, filename, isVideo) {
+    inboxFocused = true; // pause inbox refresh while viewing
+    var overlay  = document.getElementById('previewOverlay');
+    var img      = document.getElementById('previewImg');
+    var video    = document.getElementById('previewVideo');
+    var loading  = document.getElementById('previewLoading');
+    var nameEl   = document.getElementById('previewName');
+
+    img.style.display = 'none';
+    video.style.display = 'none';
+    video.pause();
+    video.removeAttribute('src');
+    img.removeAttribute('src');
+    loading.style.display = 'block';
+    nameEl.textContent = filename;
+
+    var url = '/api/preview/' + encodeURIComponent(fileId);
+
+    if (isVideo) {
+      video.src = url;
+      video.onloadeddata = function() { loading.style.display = 'none'; video.style.display = 'block'; };
+      video.onerror = function() { loading.textContent = '❌ Could not load preview.'; };
+    } else {
+      img.src = url;
+      img.onload = function() { loading.style.display = 'none'; img.style.display = 'block'; };
+      img.onerror = function() { loading.textContent = '❌ Could not load preview.'; };
+    }
+
+    overlay.classList.add('open');
+  }
+
+  function closePreview() {
+    inboxFocused = false;
+    var overlay = document.getElementById('previewOverlay');
+    var video   = document.getElementById('previewVideo');
+    video.pause();
+    video.removeAttribute('src');
+    overlay.classList.remove('open');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('previewOverlay').classList.contains('open')) {
+      closePreview();
+    }
+  });
+
+  function cancelScheduled(fileId) {
+    if (!confirm('Cancel this scheduled post?')) return;
+    fetch('/api/cancel', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({file_id: fileId})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function() { fetchScheduled(); });
+  }
+
+  function runNow() {
+    document.getElementById('runBtn').disabled = true;
+    fetch('/api/run_now');
+    setTimeout(function() { fetchStatus(); fetchPostLog(); }, 2000);
+    setTimeout(function() { document.getElementById('runBtn').disabled = false; }, 6000);
+  }
+
+  function ticker() {
+    tick++;
+    document.getElementById('pfill').style.width = (tick / TICK_MAX * 100) + '%';
+    document.getElementById('refreshLabel').textContent = 'Refreshing in ' + (TICK_MAX - tick) + 's...';
+    if (tick >= TICK_MAX) {
+      tick = 0;
+      fetchStatus();
+      fetchPostLog();
+      if (!inboxFocused) fetchInbox();
+      fetchScheduled();
+    }
+  }
+
+  fetchStatus();
+  fetchPostLog();
+  fetchInbox();
+  fetchScheduled();
+  setInterval(ticker, 1000);
+
+  function retryYoutube(filename) {
+    if (!confirm('Retry YouTube upload for "' + filename + '"?')) return;
+    fetch('/api/retry_youtube', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({filename: filename})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) { alert('❌ ' + data.error); return; }
+      alert('🔄 YouTube retry started! Check Live Logs for progress.');
+    })
+    .catch(function(e) { alert('❌ Network error: ' + e); });
+  }
+
+</script>
+</body>
+</html>
